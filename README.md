@@ -3,48 +3,49 @@ this is my first github repository
 <br>
 Author=Aditya Patil
 import pandas as pd
+import os
 
-try:
-    df = pd.read_csv('your_dataset.csv')
-    print("Dataset loaded successfully.")
-except FileNotFoundError:
-    print("Error: Dataset file not found. Please check the file path.")
-    data = {
-        'age': [25, 30, None, 22, 28],
-        'gender': ['male', 'female', 'female', 'male', None],
-        'country': ['USA', 'CAN', 'MEX', None, 'CAN'],
-        'date_column': ['01-01-2020', '15-02-2020', '12-03-2020', '30-04-2020', '05-05-2020']
-    }
-    df = pd.DataFrame(data)
-    print("Simulated dataset used.")
+data = {
+    'age': [25, 30, None, 22, 28],
+    'gender': ['male', 'female', 'female', 'male', None],
+    'income': [30000, 40000, 50000, 35000, None],
+    'education': ['High School', 'Bachelor', 'Master', 'PhD', None],
+    'marital_status': ['Single', 'Married', 'Single', 'Divorced', 'Married'],
+    'complain': [1, 0, 0, 1, 0]
+}
 
-print("Missing Values Count:")
-print(df.isnull().sum())
+df = pd.DataFrame(data)
 
-df_cleaned = df.dropna()
+df.columns = df.columns.str.strip()
+df.columns = df.columns.str.lower().str.replace(' ', '_')
+
+print("Column Names After Standardizing:")
+print(df.columns)
 
 df['age'] = df['age'].fillna(df['age'].median())
-df['gender'] = df['gender'].fillna(df['gender'].mode()[0])
-df['country'] = df['country'].fillna(df['country'].mode()[0])
+df['income'] = df['income'].fillna(df['income'].median())
+df['education'] = df['education'].fillna(df['education'].mode()[0])
+df['marital_status'] = df['marital_status'].fillna(df['marital_status'].mode()[0])
+df['complain'] = df['complain'].fillna(df['complain'].mode()[0])
 
-df_cleaned = df_cleaned.drop_duplicates()
+df_cleaned = df.drop_duplicates()
 
 df_cleaned['gender'] = df_cleaned['gender'].str.lower().str.strip()
-df_cleaned['country'] = df_cleaned['country'].str.title()
-
-df_cleaned['date_column'] = pd.to_datetime(df_cleaned['date_column'], format='%d-%m-%Y')
-
-df_cleaned.columns = df_cleaned.columns.str.lower().str.replace(' ', '_')
+df_cleaned['education'] = df_cleaned['education'].str.title().str.strip()
+df_cleaned['marital_status'] = df_cleaned['marital_status'].str.title().str.strip()
 
 df_cleaned['age'] = df_cleaned['age'].astype(int)
-df_cleaned['date_column'] = pd.to_datetime(df_cleaned['date_column'])
+df_cleaned['income'] = pd.to_numeric(df_cleaned['income'], errors='coerce')
 
+output_path = '/path/to/your/folder/cleaned_customer_personality_analysis.csv'
 try:
-    df_cleaned.to_csv('cleaned_dataset.csv', index=False)
-    print("Data cleaning complete! The cleaned dataset has been saved as 'cleaned_dataset.csv'.")
+    df_cleaned.to_csv(output_path, index=False)
+    print(f"Data cleaning complete! The cleaned dataset has been saved as '{output_path}'.")
+except PermissionError as e:
+    print(f"Permission error: {e}")
+    print("Please ensure the file is not open and try saving to a different location.")
 except Exception as e:
-    print(f"Error saving the file: {e}")
+    print(f"An error occurred: {e}")
 
-print("Cleaned Data:")
-print(df_cleaned.head())
+
 
